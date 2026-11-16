@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Конструктор шифров</title>
+<style>
+/* Если вставляете блок в свой сайт — удалите эти две строки */
+body{margin:0;background:#f5f4ef}
+@media(prefers-color-scheme:dark){body{background:#151614}}
+
+.cl{--bg:#f5f4ef;--card:#fff;--ink:#1c1c1a;--mute:#6a6963;--line:#dcdad1;--ac:#2d5b4e;--acink:#fff;--soft:#e9f0ec;--bad:#a5342b;
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);padding:16px;max-width:780px;margin:0 auto}
+@media(prefers-color-scheme:dark){.cl{--bg:#151614;--card:#1e201e;--ink:#ecebe5;--mute:#9b998f;--line:#343731;--ac:#86c9b2;--acink:#0f241d;--soft:#243029;--bad:#ff958a}}
+.cl *{box-sizing:border-box}
+.cl h1{font-size:1.7rem;line-height:1.2;margin:8px 0 6px}
+.cl h2{font-size:1.1rem;margin:0 0 6px;display:flex;align-items:center;gap:10px}
+.cl h2 span{background:var(--ac);color:var(--acink);width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;font-size:.85rem;flex:none}
+.cl p{margin:0 0 10px}
+.cl-hero p{color:var(--mute)}
+.cl-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+.cl-hint{color:var(--mute);font-size:.92rem}
+.cl-row{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin:8px 0}
+.cl-row>input,.cl-row>select{flex:1 1 180px}
+.cl-sep{height:1px;background:var(--line);margin:14px 0}
+.cl input[type=text],.cl input[type=number],.cl select,.cl textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.cl textarea{min-height:96px;resize:vertical}
+.cl input:focus,.cl select:focus,.cl textarea:focus{outline:2px solid var(--ac);outline-offset:1px}
+.cl-btn{font:inherit;font-weight:600;cursor:pointer;border:1px solid var(--ac);background:var(--ac);color:var(--acink);border-radius:10px;padding:9px 14px}
+.cl-btn.cl-ghost{background:transparent;color:var(--ac)}
+.cl-btn:active{transform:translateY(1px)}
+.cl-layers{display:grid;gap:10px;margin:10px 0}
+.cl-layer{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg)}
+.cl-lh{display:flex;gap:10px;align-items:flex-start}
+.cl-num{background:var(--soft);color:var(--ac);font-weight:700;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;font-size:.85rem}
+.cl-lt{flex:1;min-width:0}
+.cl-lt b{display:block}
+.cl-lt small{color:var(--mute);display:block;line-height:1.35}
+.cl-act{display:flex;gap:4px;flex:none}
+.cl-ib{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;width:32px;height:32px}
+.cl-ib:disabled{opacity:.35;cursor:default}
+.cl-fields{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.cl-f{display:block;flex:1 1 150px}
+.cl-f>span{display:block;font-size:.85rem;color:var(--mute);margin-bottom:3px}
+.cl-empty{color:var(--mute);text-align:center;padding:14px;border:1px dashed var(--line);border-radius:12px}
+.cl-check{display:flex;gap:8px;align-items:flex-start;font-size:.92rem;color:var(--mute);margin-top:10px}
+.cl-check input{margin-top:4px}
+.cl-seg{display:inline-flex;border:1px solid var(--ac);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.cl-seg button{font:inherit;font-weight:600;border:0;background:transparent;color:var(--ac);padding:8px 14px;cursor:pointer}
+.cl-seg button[aria-pressed=true]{background:var(--ac);color:var(--acink)}
+.cl-err{color:var(--bad);font-size:.92rem;margin:6px 0}
+.cl details{margin-top:10px}
+.cl summary{cursor:pointer;color:var(--ac);font-weight:600}
+.cl ol{padding-left:20px;margin:8px 0}
+.cl pre{margin:4px 0 10px;white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;font:.9rem/1.4 ui-monospace,Menlo,Consolas,monospace}
+.cl-code{font:.85rem/1.4 ui-monospace,Menlo,Consolas,monospace!important;min-height:70px!important}
+.cl-ok{color:var(--ac);font-size:.92rem}
+.cl-ideas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+.cl-idea{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg)}
+.cl-idea b{display:block;margin-bottom:4px}
+.cl-idea span{color:var(--mute);font-size:.92rem}
+.cl-warn{font-size:.88rem;color:var(--mute);border-left:3px solid var(--ac);padding:4px 12px;margin:16px 0}
+</style>
+</head>
+<body>
+<div class="cl" id="cl">
+
+<header class="cl-hero">
+  <h1>Конструктор шифров</h1>
+  <p>Склейте собственный шифр из известных классических и поделитесь им только с теми, кому доверяете.</p>
+</header>
+
+<section class="cl-card">
+  <h2><span>1</span>Соберите шифр</h2>
+  <p class="cl-hint">Шифр — это цепочка слоёв. При шифровании текст идёт по ним сверху вниз, при расшифровке — снизу вверх.</p>
+  <div id="cl-layers" class="cl-layers"></div>
+  <div class="cl-row">
+    <select id="cl-add-type" aria-label="Тип слоя"></select>
+    <button type="button" class="cl-btn" id="cl-add">+ Добавить слой</button>
+  </div>
+  <div class="cl-sep"></div>
+  <div class="cl-row"><button type="button" class="cl-btn cl-ghost" id="cl-rand">🎲 Случайный шифр</button></div>
+  <label class="cl-f">
+    <span>Или секретная фраза: у всех, кто введёт ту же фразу, получится тот же шифр</span>
+    <div class="cl-row">
+      <input type="text" id="cl-phrase" placeholder="например: синий дуб у реки" autocomplete="off" spellcheck="false">
+      <button type="button" class="cl-btn cl-ghost" id="cl-fromphrase">Создать шифр</button>
+    </div>
+  </label>
+  <label class="cl-check"><input type="checkbox" id="cl-b64"><span>Добавлять финальный слой XOR + Base64 (результат выглядит как случайный набор символов)</span></label>
+</section>
+
+<section class="cl-card">
+  <h2><span>2</span>Шифруйте и расшифровывайте</h2>
+  <div class="cl-seg" role="group" aria-label="Режим">
+    <button type="button" id="cl-m-enc" aria-pressed="true">Зашифровать</button>
+    <button type="button" id="cl-m-dec" aria-pressed="false">Расшифровать</button>
+  </div>
+  <label class="cl-f"><span id="cl-in-label">Ваше сообщение</span>
+    <textarea id="cl-in" spellcheck="false">Встречаемся у старого дуба в 18:30</textarea></label>
+  <div class="cl-err" id="cl-err" hidden></div>
+  <label class="cl-f" style="margin-top:10px"><span>Результат</span>
+    <textarea id="cl-out" readonly></textarea></label>
+  <div class="cl-row">
+    <button type="button" class="cl-btn" id="cl-copy-out">Скопировать результат</button>
+    <button type="button" class="cl-btn cl-ghost" id="cl-swap">⇅ Результат → в ввод</button>
+  </div>
+  <details><summary>Показать шаги</summary><ol id="cl-steps"></ol></details>
+</section>
+
+<section class="cl-card">
+  <h2><span>3</span>Код шифра — для своих</h2>
+  <p class="cl-hint">В коде зашиты все слои и ключи. Передайте его друзьям лично или в закрытом чате — и они откроют ваш шифр в один клик. Не публикуйте его там, где его увидят чужие.</p>
+  <textarea id="cl-code" class="cl-code" readonly spellcheck="false"></textarea>
+  <div class="cl-row">
+    <button type="button" class="cl-btn" id="cl-copy-code">Скопировать код</button>
+    <button type="button" class="cl-btn cl-ghost" id="cl-copy-link">Скопировать ссылку</button>
+  </div>
+  <div class="cl-sep"></div>
+  <label class="cl-f"><span>Получили код или ссылку от друга? Вставьте сюда:</span>
+    <textarea id="cl-import" spellcheck="false" style="min-height:64px"></textarea></label>
+  <div class="cl-row"><button type="button" class="cl-btn cl-ghost" id="cl-do-import">Загрузить шифр</button></div>
+  <div id="cl-imp-msg" class="cl-ok" hidden></div>
+</section>
+
+<section class="cl-card">
+  <h2><span>4</span>Где это пригодится</h2>
+  <div class="cl-ideas">
+    <div class="cl-idea"><b>Квесты и escape-room</b><span>Подсказки и финальные коды: у каждой команды или уровня свой шифр, а «рецепт» — часть головоломки.</span></div>
+    <div class="cl-idea"><b>Школа и кружки</b><span>Наглядно показывает остатки по модулю, перестановки и частотный анализ. Идея: ученики придумывают шифры и взламывают шифры друг друга.</span></div>
+    <div class="cl-idea"><b>Закрытый клуб, семья, команда</b><span>Секретная фраза — общий ключ: записки, поздравления и подарки-загадки без аккаунтов и мессенджеров.</span></div>
+    <div class="cl-idea"><b>Лояльность подписчиков</b><span>Промокоды и пасхалки в рассылке или соцсетях: расшифровал — получил скидку или доступ к закрытой странице.</span></div>
+    <div class="cl-idea"><b>Настолки, ролевые игры, геокешинг</b><span>Шифровки для игроков, письма из «мира игры», подсказки к тайникам.</span></div>
+    <div class="cl-idea"><b>Скрыть от случайного взгляда</b><span>Спойлеры, личные заметки, пароль-подсказка: защита от любопытных глаз, а не от взлома.</span></div>
+  </div>
+</section>
+
+<p class="cl-warn">Важно: классические шифры взламываются (например, частотным анализом), особенно на длинных текстах. Цепочка слоёв усложняет задачу, но не делает её невозможной. Используйте конструктор для игр, обучения и развлечения; по-настоящему секретные данные передавайте через мессенджеры со сквозным шифрованием.</p>
+
+</div>
+
+<script>
+(function(){
+/*CORE*/
+const RU='абвгдеёжзийклмнопрстуфхцчшщъыьэюя',EN='abcdefghijklmnopqrstuvwxyz';
+const ALPHS=[RU,EN];
+const mod=(a,n)=>((a%n)+n)%n;
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+function inv(a,n){a=mod(a,n);for(let x=1;x<n;x++)if((a*x)%n===1)return x;return null;}
+const isInt=v=>Number.isInteger(v);
+
+function xmur3(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19);}
+  return function(){h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);return(h^=h>>>16)>>>0;};}
+function mulberry32(a){return function(){a|=0;a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+const rngInt=(r,a,b)=>a+Math.floor(r()*(b-a+1));
+function rword(r,n){const A=r()<0.5?'абвгдежзиклмнопрстуфхцчшэюя':EN;let s='';for(let i=0;i<n;i++)s+=A[Math.floor(r()*A.length)];return s;}
+
+/* Применяет функцию к каждой букве (рус/лат), сохраняя регистр и прочие символы */
+function mapLetters(text,fn){let c=0;
+  return Array.from(text).map(ch=>{const lo=ch.toLowerCase();if(lo.length!==1)return ch;
+    for(let ai=0;ai<ALPHS.length;ai++){const A=ALPHS[ai],i=A.indexOf(lo);
+      if(i>=0){const r=A[mod(fn(i,A.length,c++,ai),A.length)];return ch!==lo?r.toUpperCase():r;}}
+    return ch;}).join('');}
+
+function keyShifts(key){const out=[];
+  for(const ch of Array.from(key.toLowerCase())){for(const A of ALPHS){const i=A.indexOf(ch);if(i>=0){out.push(i);break;}}}
+  return out;}
+
+function shuffled(n,seed){const r=mulberry32(xmur3(seed)());const a=[...Array(n).keys()];
+  for(let i=n-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function substMaps(key){const f=ALPHS.map(A=>shuffled(A.length,key+'|'+A.length));
+  const b=f.map(p=>{const q=[];p.forEach((v,i)=>q[v]=i);return q;});return{f,b};}
+
+function applyPerm(text,perm,decrypt){const a=Array.from(text),out=new Array(a.length);
+  if(!decrypt){for(let i=0;i<a.length;i++)out[i]=a[perm[i]];}
+  else{for(let i=0;i<a.length;i++)out[perm[i]]=a[i];}
+  return out.join('');}
+function railPerm(n,r){const rail=[];let row=0,d=1;
+  for(let i=0;i<n;i++){rail.push(row);if(row===0)d=1;else if(row===r-1)d=-1;row+=d;}
+  return [...Array(n).keys()].sort((x,y)=>rail[x]-rail[y]||x-y);}
+function colPerm(n,key){const k=Array.from(key.toLowerCase());
+  const order=k.map((_,i)=>i).sort((a,b)=>k[a]<k[b]?-1:k[a]>k[b]?1:a-b);
+  const perm=[];for(const c of order)for(let i=c;i<n;i+=k.length)perm.push(i);return perm;}
+
+function xorBytes(b,k){const o=new Uint8Array(b.length);for(let i=0;i<b.length;i++)o[i]=b[i]^k[i%k.length];return o;}
+
+const OKA=[];for(let a=2;a<66;a++)if(gcd(a,26)===1&&gcd(a,33)===1)OKA.push(a);
+const num=(k,label,min,max)=>({k,label,type:'number',min,max});
+const txt=(k,label)=>({k,label,type:'text'});
+
+const L={
+  caesar:{name:'Шифр Цезаря',info:'Каждая буква сдвигается по алфавиту на N позиций.',
+    fields:[num('shift','Сдвиг',1,99)],def:{shift:3},
+    check:p=>isInt(p.shift)?null:'укажите целое число',
+    enc:(t,p)=>mapLetters(t,i=>i+p.shift),dec:(t,p)=>mapLetters(t,i=>i-p.shift),
+    rnd:r=>({shift:rngInt(r,1,25)})},
+  atbash:{name:'Атбаш',info:'Алфавит переворачивается: первая буква ↔ последняя.',
+    fields:[],def:{},
+    enc:t=>mapLetters(t,(i,n)=>n-1-i),dec:t=>mapLetters(t,(i,n)=>n-1-i)},
+  vigenere:{name:'Шифр Виженера',info:'Сдвиг каждой буквы зависит от буквы ключевого слова.',
+    fields:[txt('key','Ключевое слово')],def:{key:'ключ'},
+    check:p=>keyShifts(p.key).length?null:'в ключе должны быть буквы (русские или латинские)',
+    enc:(t,p)=>{const k=keyShifts(p.key);return mapLetters(t,(i,n,c)=>i+k[c%k.length]);},
+    dec:(t,p)=>{const k=keyShifts(p.key);return mapLetters(t,(i,n,c)=>i-k[c%k.length]);},
+    rnd:r=>({key:rword(r,rngInt(r,4,7))})},
+  affine:{name:'Аффинный шифр',info:'Буква i превращается в (a·i + b) по модулю длины алфавита.',
+    fields:[num('a','Число a',2,99),num('b','Число b',0,99)],def:{a:5,b:7},
+    check:p=>!isInt(p.a)||!isInt(p.b)?'укажите целые числа':(gcd(p.a,26)!==1||gcd(p.a,33)!==1)?'a должно быть взаимно простым с 26 и 33 (например 5, 7, 17, 19)':null,
+    enc:(t,p)=>mapLetters(t,i=>p.a*i+p.b),
+    dec:(t,p)=>mapLetters(t,(i,n)=>inv(p.a,n)*(i-p.b)),
+    rnd:r=>({a:OKA[Math.floor(r()*OKA.length)],b:rngInt(r,0,32)})},
+  subst:{name:'Подстановка по ключу',info:'Алфавит перемешивается по ключу — получается свой уникальный алфавит.',
+    fields:[txt('key','Ключ')],def:{key:'секрет'},
+    check:p=>p.key.length?null:'ключ не должен быть пустым',
+    enc:(t,p)=>{const m=substMaps(p.key);return mapLetters(t,(i,n,c,ai)=>m.f[ai][i]);},
+    dec:(t,p)=>{const m=substMaps(p.key);return mapLetters(t,(i,n,c,ai)=>m.b[ai][i]);},
+    rnd:r=>({key:rword(r,rngInt(r,5,8))})},
+  rail:{name:'Железнодорожная изгородь',info:'Текст записывается зигзагом по N «рельсам» и читается по рельсам.',
+    fields:[num('rails','Число рельсов',2,20)],def:{rails:3},
+    check:p=>isInt(p.rails)&&p.rails>=2&&p.rails<=20?null:'рельсов от 2 до 20',
+    enc:(t,p)=>applyPerm(t,railPerm(Array.from(t).length,p.rails),false),
+    dec:(t,p)=>applyPerm(t,railPerm(Array.from(t).length,p.rails),true),
+    rnd:r=>({rails:rngInt(r,3,6)})},
+  col:{name:'Столбцовая перестановка',info:'Текст раскладывается в таблицу, столбцы читаются в порядке букв ключа.',
+    fields:[txt('key','Ключ (от 2 символов)')],def:{key:'мост'},
+    check:p=>Array.from(p.key).length>=2?null:'ключ — минимум 2 символа',
+    enc:(t,p)=>applyPerm(t,colPerm(Array.from(t).length,p.key),false),
+    dec:(t,p)=>applyPerm(t,colPerm(Array.from(t).length,p.key),true),
+    rnd:r=>({key:rword(r,rngInt(r,4,7))})},
+  digits:{name:'Сдвиг цифр',info:'Каждая цифра сдвигается на N (0–9 по кругу): прячет даты и номера.',
+    fields:[num('n','Сдвиг',1,9)],def:{n:4},
+    check:p=>isInt(p.n)?null:'укажите целое число',
+    enc:(t,p)=>t.replace(/[0-9]/g,d=>String(mod(+d+p.n,10))),
+    dec:(t,p)=>t.replace(/[0-9]/g,d=>String(mod(+d-p.n,10))),
+    rnd:r=>({n:rngInt(r,1,9)})},
+  reverse:{name:'Разворот текста',info:'Текст читается задом наперёд.',
+    fields:[],def:{},
+    enc:t=>Array.from(t).reverse().join(''),dec:t=>Array.from(t).reverse().join('')},
+  xor:{name:'XOR + Base64',info:'Побитовое наложение ключа и запись в Base64. Лучше ставить последним слоем.',
+    fields:[txt('key','Ключ')],def:{key:'ключ'},
+    check:p=>p.key.length?null:'ключ не должен быть пустым',
+    enc:(t,p)=>{const k=new TextEncoder().encode(p.key),b=xorBytes(new TextEncoder().encode(t),k);let s='';b.forEach(x=>s+=String.fromCharCode(x));return btoa(s);},
+    dec:(t,p)=>{let s;try{s=atob(t.replace(/\s+/g,''));}catch(e){throw new Error('XOR + Base64: ожидался текст в формате Base64');}
+      const b=Uint8Array.from(s,c=>c.charCodeAt(0));return new TextDecoder().decode(xorBytes(b,new TextEncoder().encode(p.key)));},
+    rnd:r=>({key:rword(r,rngInt(r,5,8))})}
+};
+
+function gen(r,withB64){
+  const pool=['caesar','atbash','vigenere','affine','subst','rail','col','digits','reverse'];
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  const types=pool.slice(0,3+(r()<0.5?1:0));
+  if(withB64)types.push('xor');
+  return types.map(t=>({type:t,p:Object.assign({},L[t].def,L[t].rnd?L[t].rnd(r):{})}));
+}
+/*ENDCORE*/
+
+/* ---------- интерфейс ---------- */
+const root=document.getElementById('cl');
+const q=s=>root.querySelector(s);
+let layers=[],mode='enc',uid=0;
+
+function mk(tag,cls,txtc){const e=document.createElement(tag);if(cls)e.className=cls;if(txtc!=null)e.textContent=txtc;return e;}
+function setLayers(arr){layers=arr.map(x=>({id:++uid,type:x.type,p:Object.assign({},L[x.type].def,x.p||{})}));renderLayers();update();}
+function move(i,d){const j=i+d;if(j<0||j>=layers.length)return;[layers[i],layers[j]]=[layers[j],layers[i]];renderLayers();update();}
+
+function renderLayers(){
+  const box=q('#cl-layers');box.textContent='';
+  if(!layers.length)box.appendChild(mk('p','cl-empty','Добавьте первый слой или нажмите «Случайный шифр».'));
+  layers.forEach((ly,idx)=>{
+    const T=L[ly.type],card=mk('div','cl-layer'),head=mk('div','cl-lh');
+    head.appendChild(mk('span','cl-num',String(idx+1)));
+    const t=mk('div','cl-lt');t.appendChild(mk('b',null,T.name));t.appendChild(mk('small',null,T.info));head.appendChild(t);
+    const act=mk('div','cl-act');
+    [['↑',()=>move(idx,-1),'Выше',idx===0],['↓',()=>move(idx,1),'Ниже',idx===layers.length-1],
+     ['✕',()=>{layers.splice(idx,1);renderLayers();update();},'Убрать',false]].forEach(([s,f,title,dis])=>{
+      const b=mk('button','cl-ib',s);b.type='button';b.title=title;b.setAttribute('aria-label',title);b.disabled=dis;b.onclick=f;act.appendChild(b);});
+    head.appendChild(act);card.appendChild(head);
+    if(T.fields.length){
+      const fs=mk('div','cl-fields');
+      T.fields.forEach(f=>{
+        const lab=mk('label','cl-f');lab.appendChild(mk('span',null,f.label));
+        const inp=document.createElement('input');inp.type=f.type;
+        if(f.type==='number'){inp.min=f.min;inp.max=f.max;}else{inp.autocomplete='off';inp.spellcheck=false;}
+        inp.value=ly.p[f.k];
+        inp.oninput=()=>{ly.p[f.k]=f.type==='number'?parseInt(inp.value,10):inp.value;update();};
+        lab.appendChild(inp);fs.appendChild(lab);});
+      card.appendChild(fs);
+    }
+    box.appendChild(card);
+  });
+}
+
+function run(){
+  let text=q('#cl-in').value;const steps=[];
+  const seq=mode==='enc'?layers:[...layers].reverse();
+  for(const ly of seq){
+    const T=L[ly.type],err=T.check?T.check(ly.p):null;
+    if(err)throw new Error(T.name+': '+err);
+    text=(mode==='enc'?T.enc:T.dec)(text,ly.p);steps.push([T.name,text]);
+  }
+  return{text,steps};
+}
+
+/* код шифра */
+function toB64u(str){const b=new TextEncoder().encode(str);let s='';b.forEach(x=>s+=String.fromCharCode(x));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function fromB64u(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)));}
+function exportCode(){return toB64u(JSON.stringify({v:1,l:layers.map(l=>[l.type,l.p])}));}
+function importCode(s){
+  s=s.trim();const m=s.match(/c=([A-Za-z0-9_-]+)/);if(m)s=m[1];s=s.replace(/\s+/g,'');
+  const o=JSON.parse(fromB64u(s));
+  if(!o||o.v!==1||!Array.isArray(o.l)||o.l.length>12)throw new Error('bad');
+  return o.l.map(([t,p])=>{
+    if(!Object.prototype.hasOwnProperty.call(L,t))throw new Error('bad');
+    const clean={};
+    L[t].fields.forEach(f=>{const v=p&&p[f.k];
+      if(f.type==='number'){let n=parseInt(v,10);if(!isFinite(n))n=L[t].def[f.k];clean[f.k]=Math.min(f.max,Math.max(f.min,n));}
+      else clean[f.k]=typeof v==='string'?v.slice(0,64):L[t].def[f.k];});
+    return{type:t,p:clean};});
+}
+
+function update(){
+  const err=q('#cl-err'),out=q('#cl-out'),st=q('#cl-steps');st.textContent='';
+  try{
+    const r=run();out.value=r.text;err.hidden=true;
+    r.steps.forEach(([n,t])=>{const li=mk('li');li.appendChild(mk('b',null,n));li.appendChild(mk('pre',null,t));st.appendChild(li);});
+  }catch(e){out.value='';err.textContent=e.message;err.hidden=false;}
+  q('#cl-code').value=exportCode();
+}
+
+function setMode(m){
+  mode=m;
+  q('#cl-m-enc').setAttribute('aria-pressed',m==='enc');
+  q('#cl-m-dec').setAttribute('aria-pressed',m==='dec');
+  q('#cl-in-label').textContent=m==='enc'?'Ваше сообщение':'Зашифрованный текст';
+  update();
+}
+
+function copy(text,btn){
+  const done=()=>{const o=btn.textContent;btn.textContent='Скопировано ✓';setTimeout(()=>btn.textContent=o,1400);};
+  function fb(){const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}ta.remove();}
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(done,fb);else fb();
+}
+
+/* события */
+const sel=q('#cl-add-type');
+Object.keys(L).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=L[k].name;sel.appendChild(o);});
+q('#cl-add').onclick=()=>{layers.push({id:++uid,type:sel.value,p:Object.assign({},L[sel.value].def)});renderLayers();update();};
+q('#cl-rand').onclick=()=>{const a=new Uint32Array(1);crypto.getRandomValues(a);setLayers(gen(mulberry32(a[0]),q('#cl-b64').checked));};
+q('#cl-fromphrase').onclick=()=>{
+  const ph=q('#cl-phrase').value.trim().toLowerCase().replace(/\s+/g,' ');
+  if(!ph){q('#cl-phrase').focus();return;}
+  setLayers(gen(mulberry32(xmur3('cipher-lab:'+ph)()),q('#cl-b64').checked));
+};
+q('#cl-in').oninput=update;
+q('#cl-m-enc').onclick=()=>setMode('enc');
+q('#cl-m-dec').onclick=()=>setMode('dec');
+q('#cl-copy-out').onclick=e=>copy(q('#cl-out').value,e.target);
+q('#cl-swap').onclick=()=>{const v=q('#cl-out').value;if(!v)return;q('#cl-in').value=v;setMode(mode==='enc'?'dec':'enc');};
+q('#cl-copy-code').onclick=e=>copy(q('#cl-code').value,e.target);
+q('#cl-copy-link').onclick=e=>copy(location.href.split('#')[0]+'#c='+q('#cl-code').value,e.target);
+q('#cl-do-import').onclick=()=>{
+  const msg=q('#cl-imp-msg');msg.hidden=false;
+  try{setLayers(importCode(q('#cl-import').value));msg.className='cl-ok';msg.textContent='Шифр загружен: '+layers.length+' сл.';}
+  catch(e){msg.className='cl-err';msg.textContent='Не удалось прочитать код шифра. Проверьте, что он скопирован целиком.';}
+};
+
+/* старт: шифр из ссылки #c=... или демо-шифр */
+let started=false;
+if(/^#c=/.test(location.hash)){try{setLayers(importCode(location.hash));started=true;}catch(e){}}
+if(!started)setLayers(gen(mulberry32(xmur3('demo')()),false));
+})();
+</script>
+</body>
+</html>
